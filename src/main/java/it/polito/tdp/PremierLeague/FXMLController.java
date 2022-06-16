@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.PremierLeague.model.Model;
+import it.polito.tdp.PremierLeague.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,7 +36,7 @@ public class FXMLController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbSquadra"
-    private ComboBox<?> cmbSquadra; // Value injected by FXMLLoader
+    private ComboBox<Team> cmbSquadra; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -48,16 +49,38 @@ public class FXMLController {
 
     @FXML
     void doClassifica(ActionEvent event) {
-
+     Team t=cmbSquadra.getValue();
+     if(t!=null) {
+    	 txtResult.setText(model.getClassifica(t));
+     }
+     else 
+    	 txtResult.setText("Selezionare una squadra");
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
+    	model.creaGrafo();
+    	cmbSquadra.getItems().clear();
+    	cmbSquadra.getItems().addAll(model.getAllTeam().values());
+    	btnClassifica.setDisable(false);
+        btnSimula.setDisable(false);
 
     }
 
     @FXML
     void doSimula(ActionEvent event) {
+    	try {
+    		int n=Integer.parseInt(txtN.getText());
+    		int x=Integer.parseInt(txtX.getText());
+    		model.iniziaSimulazione(n, x);
+    		int giorni=model.getGiorniSottoX();
+    		double media=model.getMediaGiornalisti();
+    		txtResult.appendText("I giorni in cui non ci sono stati abbastanza giornalisti sono stati: "+giorni+
+    				"\n La media dei giornalisti alle partite è stata: "+media);
+    	}
+    	catch(NumberFormatException e) {
+    		e.printStackTrace();
+    	}
 
     }
 
@@ -70,6 +93,8 @@ public class FXMLController {
         assert txtN != null : "fx:id=\"txtN\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtX != null : "fx:id=\"txtX\" was not injected: check your FXML file 'Scene.fxml'.";
         assert txtResult != null : "fx:id=\"txtResult\" was not injected: check your FXML file 'Scene.fxml'.";
+        btnClassifica.setDisable(true);
+        btnSimula.setDisable(true);
     }
     
     public void setModel(Model model) {
